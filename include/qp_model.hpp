@@ -39,6 +39,7 @@ public:
 
     // Check whether Q is symmetric
     bool isSymmetric(double tolerance = 1e-9) const;
+    bool isPositiveSemidefinite(double tolerance = 1e-9) const;
 
     // Calculate objective value
     double objectiveValue(

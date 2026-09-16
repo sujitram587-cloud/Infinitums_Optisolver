@@ -37,6 +37,71 @@ bool QPModel::isValid() const {
     }
 
     return true;
+
+}
+bool QPModel::isPositiveSemidefinite(double tolerance) const {
+
+    // Q must be symmetric for a standard convex QP.
+    if (!isSymmetric(tolerance))
+        return false;
+
+    // Cholesky-style PSD check.
+    // For a positive semidefinite matrix, all required
+    // diagonal terms remain non-negative.
+    std::vector<std::vector<double>> L(
+        n,
+        std::vector<double>(n, 0.0)
+    );
+
+    for (int i = 0; i < n; ++i) {
+
+        for (int j = 0; j <= i; ++j) {
+
+            double sum = 0.0;
+
+            for (int k = 0; k < j; ++k) {
+                sum += L[i][k] * L[j][k];
+            }
+
+            double value =
+                Q[i][j] - sum;
+
+            if (i == j) {
+
+                // A significantly negative diagonal
+                // means Q is not positive semidefinite.
+                if (value < -tolerance)
+                    return false;
+
+                // Small negative values can occur because
+                // of floating-point round-off.
+                L[i][j] =
+                    (value > 0.0)
+                    ? std::sqrt(value)
+                    : 0.0;
+
+            } else {
+
+                if (std::abs(L[j][j]) > tolerance) {
+
+                    L[i][j] =
+                        value / L[j][j];
+
+                } else {
+
+                    // If the pivot is effectively zero,
+                    // the corresponding value must also
+                    // be approximately zero for PSD.
+                    if (std::abs(value) > tolerance)
+                        return false;
+
+                    L[i][j] = 0.0;
+                }
+            }
+        }
+    }
+
+    return true;
 }
 
 bool QPModel::isSymmetric(double tolerance) const {

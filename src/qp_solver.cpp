@@ -28,6 +28,12 @@ QPResult QPSolver::solve(const QPModel& model) {
         result.solveTime = 0.0;
         return result;
     }
+    if (!model.isPositiveSemidefinite()) {
+    result.status = "NON_CONVEX_QP";
+    result.objectiveValue = 0.0;
+    result.solveTime = 0.0;
+    return result;
+}
 
     const int n = model.n;
     const double tolerance = 1e-8;
@@ -86,8 +92,11 @@ QPResult QPSolver::solve(const QPModel& model) {
     std::vector<std::vector<double>> Aineq = model.A_ineq;
     std::vector<double> bineq = model.b_ineq;
 
-    // Upper bounds
-    for (int i = 0; i < n; ++i) {
+// Upper bounds
+for (int i = 0; i < n; ++i) {
+
+    // Ignore the default "no upper bound" value.
+    if (model.upperBound[i] < 1e19) {
 
         std::vector<double> row(n, 0.0);
         row[i] = 1.0;
@@ -95,9 +104,13 @@ QPResult QPSolver::solve(const QPModel& model) {
         Aineq.push_back(row);
         bineq.push_back(model.upperBound[i]);
     }
+}
 
-    // Lower bounds
-    for (int i = 0; i < n; ++i) {
+// Lower bounds
+for (int i = 0; i < n; ++i) {
+
+    // Ignore the default "no lower bound" value.
+    if (model.lowerBound[i] > -1e19) {
 
         std::vector<double> row(n, 0.0);
         row[i] = -1.0;
@@ -105,6 +118,7 @@ QPResult QPSolver::solve(const QPModel& model) {
         Aineq.push_back(row);
         bineq.push_back(-model.lowerBound[i]);
     }
+}
 
     const int meq = static_cast<int>(model.A_eq.size());
     const int mineq = static_cast<int>(Aineq.size());
