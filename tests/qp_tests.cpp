@@ -1578,7 +1578,32 @@ TestCase generateUnconstrainedTest(
         expectedObjective
     };
 }
+TestCase test100VariableUnconstrainedQP() {
+    const int n = 100;
 
+    QPModel model(n);
+    vector<double> expectedX(n, 1.0);
+
+    // Q = 2I and c = -2 for every variable.
+    // Therefore:
+    //   Qx + c = 0
+    //   2x - 2 = 0
+    //   x = 1
+    for (int i = 0; i < n; ++i) {
+        model.Q[i][i] = 2.0;
+        model.c[i] = -2.0;
+    }
+
+    // Objective at x = (1,1,...,1):
+    // 0.5 * 100 * 2 - 2 * 100 = -100
+    return {
+        "100 Variable Unconstrained QP",
+        model,
+        "OPTIMAL",
+        expectedX,
+        -100.0
+    };
+}
 
 // ============================================================
 // TEST RUNNER
@@ -1684,7 +1709,8 @@ int main() {
         generateUnconstrainedTest(3, "3 Variable QP"),
         generateUnconstrainedTest(5, "5 Variable QP"),
         generateUnconstrainedTest(10, "10 Variable QP"),
-        generateUnconstrainedTest(20, "20 Variable QP")
+        generateUnconstrainedTest(20, "20 Variable QP"),
+        test100VariableUnconstrainedQP()
     };
 
 
