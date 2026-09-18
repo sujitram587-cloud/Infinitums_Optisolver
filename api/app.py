@@ -5,12 +5,17 @@ import os
 
 
 # Check command-line argument
-if len(sys.argv) != 2:
-    print("Error: Please provide an input JSON file.")
-    print("Usage: python api/app.py <input_file.json>")
+if len(sys.argv) not in [2, 3]:
+    print("Error: Invalid number of arguments.")
+    print("Usage: python api/app.py <input_file.json> [output_folder]")
     sys.exit(1)
 
 INPUT_FILE = sys.argv[1]
+
+if len(sys.argv) == 3:
+    OUTPUT_DIR = sys.argv[2]
+else:
+    OUTPUT_DIR = "output"
 
 # Check input file
 if not os.path.isfile(INPUT_FILE):
@@ -18,7 +23,6 @@ if not os.path.isfile(INPUT_FILE):
     print(INPUT_FILE)
     sys.exit(1)
 
-OUTPUT_DIR = "output"
 
 try:
     # Read JSON input
