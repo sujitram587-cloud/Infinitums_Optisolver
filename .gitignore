@@ -1,2 +1,15 @@
 *.exe
 build/
+
+# Generated solver outputs
+output/
+
+# Local backup
+api/app_backup.py
+
+# Temporary test inputs
+input/bad_test.json
+input/bounds_test.json
+input/equality_test.json
+input/inequality_test.json
+input/test_input.json
